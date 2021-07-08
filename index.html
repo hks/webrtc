@@ -34,8 +34,16 @@
 
 </video>
 
-<script>
+<button onclick="start()">
+    Get Description
+</button>
 
+<input type="text" id="descriptionInput" placeholder="description buraya"/>
+<button onclick="startConversation()">
+    Start
+</button>
+
+<script>
 
     const config = {
         iceServers: [{ urls: "stun:stun.mystunserver.tld" }]
@@ -78,13 +86,33 @@
         try {
             makingOffer = true;
             await pc.setLocalDescription();
-            signaler.send({ description: pc.localDescription });
+
+            console.log(
+                { description: pc.localDescription }
+            );
+            alert('SUCCESS');
+
+            // signaler.send({ description: pc.localDescription });
         } catch(err) {
             console.error(err);
         } finally {
             makingOffer = false;
         }
     };
+
+    pc.onicecandidate = ({candidate}) => {
+
+        console.log('signaler.send({candidate});');
+        console.log({candidate});
+        // signaler.send({candidate});
+    };
+
+
+    function startConversation(){
+        alert('DAHA DEĞİL');
+    }
+
+
 
 </script>
 
