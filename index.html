@@ -6,12 +6,87 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>WebRTC Test</title>
+
+    <style>
+
+        video{
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin:50px;
+            background: gray;
+        }
+
+    </style>
+
 </head>
 <body>
 
 <h1>
     Hello World!
 </h1>
+
+<video class="selfview">
+
+</video>
+
+<video class="remoteview">
+
+</video>
+
+<script>
+
+
+    const config = {
+        iceServers: [{ urls: "stun:stun.mystunserver.tld" }]
+    };
+
+    // const signaler = new SignalingChannel();
+    const pc = new RTCPeerConnection(config);
+
+
+    const constraints = { audio: true, video: true };
+    const selfVideo = document.querySelector("video.selfview");
+    const remoteVideo = document.querySelector("video.remoteview");
+
+
+    async function start() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+            for (const track of stream.getTracks()) {
+                pc.addTrack(track, stream);
+            }
+            selfVideo.srcObject = stream;
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    pc.ontrack = ({track, streams}) => {
+        track.onunmute = () => {
+            if (remoteVideo.srcObject) {
+                return;
+            }
+            remoteVideo.srcObject = streams[0];
+        };
+    };
+
+    let makingOffer = false;
+
+    pc.onnegotiationneeded = async () => {
+        try {
+            makingOffer = true;
+            await pc.setLocalDescription();
+            signaler.send({ description: pc.localDescription });
+        } catch(err) {
+            console.error(err);
+        } finally {
+            makingOffer = false;
+        }
+    };
+
+</script>
 
 </body>
 </html>
