@@ -127,16 +127,14 @@
     async function createOffer(){
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        console.log({
-            offer : offer
-        });
+        console.log(JSON.stringify(offer));
     }
 
 
     async function startConversation(){
 
         const remoteOffer = document.getElementById('descriptionInput').value;
-        await pc.setRemoteDescription(remoteOffer);
+        await pc.setRemoteDescription(JSON.parse(remoteOffer));
 
     }
 
