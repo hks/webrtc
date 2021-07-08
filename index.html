@@ -34,23 +34,29 @@
 
 </video>
 
-<button onclick="start()">
-    Get Description
+<button onclick="createOffer()">
+    Create Offer
 </button>
 
-<input type="text" id="descriptionInput" placeholder="description buraya"/>
+<input type="text" id="descriptionInput" placeholder="remote offer"/>
 <button onclick="startConversation()">
     Start
 </button>
 
 <script>
 
+
+
+
     const config = {
-        iceServers: [{ urls: "stun:stun.mystunserver.tld" }]
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
     };
 
     // const signaler = new SignalingChannel();
     const pc = new RTCPeerConnection(config);
+
+
+
 
 
     const constraints = { audio: true, video: true };
@@ -65,12 +71,18 @@
             for (const track of stream.getTracks()) {
                 pc.addTrack(track, stream);
             }
-            console.log(stream);
+
             selfVideo.srcObject = stream;
+            selfVideo.onloadedmetadata = function(e) {
+                selfVideo.play();
+            };
+
         } catch(err) {
             console.error(err);
         }
     }
+
+    start();
 
     pc.ontrack = ({track, streams}) => {
         track.onunmute = () => {
@@ -78,6 +90,9 @@
                 return;
             }
             remoteVideo.srcObject = streams[0];
+            remoteVideo.onloadedmetadata = function(e) {
+                remoteVideo.play();
+            };
         };
     };
 
@@ -109,8 +124,20 @@
     };
 
 
-    function startConversation(){
-        alert('DAHA DEĞİL');
+    async function createOffer(){
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        console.log({
+            offer : offer
+        });
+    }
+
+
+    async function startConversation(){
+
+        const remoteOffer = document.getElementById('descriptionInput').value;
+        await pc.setRemoteDescription(remoteOffer);
+
     }
 
 
